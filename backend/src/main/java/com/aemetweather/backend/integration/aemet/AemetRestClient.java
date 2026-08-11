@@ -91,7 +91,7 @@ public class AemetRestClient implements AemetClient {
 		}
 
 		if (envelope == null || envelope.dataUrl() == null || envelope.dataUrl().isBlank()) {
-			throw new AemetUnavailableException("AEMET envelope did not contain a valid data URL");
+			throw new MunicipalityNotFoundException(municipalityCode);
 		}
 		return envelope.dataUrl();
 	}

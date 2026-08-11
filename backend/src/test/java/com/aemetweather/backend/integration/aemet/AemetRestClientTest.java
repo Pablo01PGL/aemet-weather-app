@@ -238,13 +238,24 @@ class AemetRestClientTest {
 	}
 
 	@Test
-	void getForecast_whenEnvelopeHasNoDataUrl_throwsAemetUnavailableException() {
+	void getForecast_whenEnvelopeHasNoDataUrl_throwsMunicipalityNotFoundException() {
 		server.expect(requestTo(BASE_URL + "/prediccion/especifica/municipio/diaria/" + MUNICIPALITY_CODE))
 			.andRespond(withSuccess("""
 				{"descripcion":"exito","estado":200}""", MediaType.APPLICATION_JSON));
 
 		assertThatThrownBy(() -> aemetRestClient.getForecast(MUNICIPALITY_CODE))
-			.isInstanceOf(AemetUnavailableException.class);
+			.isInstanceOf(MunicipalityNotFoundException.class);
+	}
+
+	@Test
+	void getForecast_whenFirstResponseBodyIsEmpty_throwsMunicipalityNotFoundException() {
+		// Real AEMET behavior for a non-existent municipality code: HTTP 200 with an
+		// empty body (no JSON at all), rather than a 404. Confirmed against the real API.
+		server.expect(requestTo(BASE_URL + "/prediccion/especifica/municipio/diaria/" + MUNICIPALITY_CODE))
+			.andRespond(withStatus(HttpStatus.OK).contentType(MediaType.TEXT_PLAIN));
+
+		assertThatThrownBy(() -> aemetRestClient.getForecast(MUNICIPALITY_CODE))
+			.isInstanceOf(MunicipalityNotFoundException.class);
 	}
 
 	@Test
