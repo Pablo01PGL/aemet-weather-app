@@ -24,7 +24,6 @@ import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
-// Uses a real ApplicationContext (not "new AemetRestClient(...)") so the @Cacheable proxy is genuinely exercised.
 class AemetRestClientCachingTest {
 
 	private static final String BASE_URL = "https://opendata.aemet.es/opendata/api";
@@ -55,7 +54,6 @@ class AemetRestClientCachingTest {
 		List<Municipality> second = aemetClient.getMunicipalities();
 		List<Municipality> third = aemetClient.getMunicipalities();
 
-		// Only one envelope+data pair is stubbed; a repeated AEMET call would fail server.verify().
 		assertThat(first).containsExactly(new Municipality("44001", "Ababuj"));
 		assertThat(second).isEqualTo(first);
 		assertThat(third).isEqualTo(first);

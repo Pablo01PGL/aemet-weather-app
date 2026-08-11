@@ -149,7 +149,6 @@ class ForecastServiceTest {
 
 	@Test
 	void getForecast_whenTomorrowExistsButIsMissingARequiredPrecipitationPeriod_throwsAemetUnavailableExceptionWithoutInventingProbability() {
-		// "18-24" is absent: incomplete provider payload, not a missing-tomorrow case.
 		List<PrecipitationPeriod> missingOneRequiredPeriod = List.of(
 			new PrecipitationPeriod(5, "00-24"),
 			new PrecipitationPeriod(0, "00-06"),
