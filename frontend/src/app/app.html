@@ -1,48 +1,70 @@
 <main class="page">
-  <h1>Previsión meteorológica</h1>
+  <div class="card">
+    <header class="page-header">
+      <h1>Previsión meteorológica</h1>
+      <span class="header-accent" aria-hidden="true"></span>
+      <p class="subtitle">Consulta la previsión de mañana para cualquier municipio de España.</p>
+    </header>
 
-  <form class="controls">
-    <mat-form-field>
-      <mat-label>Municipio</mat-label>
-      <input
-        type="text"
-        matInput
-        placeholder="Escribe un municipio..."
-        [formControl]="municipalityControl"
-        [matAutocomplete]="municipalityAutocomplete"
-      />
-      <mat-autocomplete #municipalityAutocomplete="matAutocomplete" [displayWith]="displayMunicipality">
-        @for (municipality of municipalities$ | async; track municipality.code) {
-          <mat-option [value]="municipality">{{ municipality.name }}</mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-
-    <mat-button-toggle-group [formControl]="temperatureUnitControl" aria-label="Unidad de temperatura">
-      <mat-button-toggle value="G_CEL">°C</mat-button-toggle>
-      <mat-button-toggle value="G_FAH">°F</mat-button-toggle>
-    </mat-button-toggle-group>
-  </form>
-
-  @if (forecastState$ | async; as state) {
-    @if (state.loading) {
-      <p class="status">
-        <mat-progress-spinner mode="indeterminate" diameter="20" />
-        Cargando previsión...
-      </p>
-    } @else if (state.error) {
-      <p class="status" role="alert">No se ha podido cargar la previsión.</p>
-    } @else if (state.forecast; as forecast) {
-      <section class="forecast">
-        <p>Temperatura media: {{ forecast.mediaTemperatura }} {{ temperatureSymbol(forecast.unidadTemperatura) }}</p>
-        <ul>
-          @for (period of forecast.probPrecipitacion; track period.periodo) {
-            <li>{{ period.periodo }}: {{ period.probabilidad }}%</li>
+    <section class="controls">
+      <mat-form-field class="municipality-field" appearance="outline">
+        <mat-label>Municipio</mat-label>
+        <input
+          type="text"
+          matInput
+          placeholder="Escribe un municipio..."
+          [formControl]="municipalityControl"
+          [matAutocomplete]="municipalityAutocomplete"
+        />
+        <mat-autocomplete #municipalityAutocomplete="matAutocomplete" [displayWith]="displayMunicipality">
+          @for (municipality of municipalities$ | async; track municipality.code) {
+            <mat-option [value]="municipality">{{ municipality.name }}</mat-option>
           }
-        </ul>
-      </section>
-    } @else {
-      <p class="status">Selecciona un municipio para consultar la previsión.</p>
-    }
-  }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-button-toggle-group [formControl]="temperatureUnitControl" aria-label="Unidad de temperatura" class="unit-toggle">
+        <mat-button-toggle value="G_CEL">Celsius</mat-button-toggle>
+        <mat-button-toggle value="G_FAH">Fahrenheit</mat-button-toggle>
+      </mat-button-toggle-group>
+    </section>
+
+    <section class="result" aria-live="polite">
+      @if (forecastState$ | async; as state) {
+        @if (state.loading) {
+          <div class="status">
+            <mat-progress-spinner mode="indeterminate" diameter="32" />
+            <p>Cargando previsión...</p>
+          </div>
+        } @else if (state.error) {
+          <div class="status status--error" role="alert">
+            <p>No se ha podido cargar la previsión.</p>
+          </div>
+        } @else if (state.forecast; as forecast) {
+          <div class="forecast">
+            <div class="temperature">
+              <span class="temperature__value">{{ forecast.mediaTemperatura }} {{ temperatureSymbol(forecast.unidadTemperatura) }}</span>
+              <span class="temperature__label">Temperatura media de mañana</span>
+            </div>
+
+            <div class="precipitation">
+              <h2 class="precipitation__title">Probabilidad de precipitación</h2>
+              <div class="precipitation__grid">
+                @for (period of forecast.probPrecipitacion; track period.periodo) {
+                  <div class="precipitation__item">
+                    <span class="precipitation__period">{{ period.periodo }}</span>
+                    <span class="precipitation__value">{{ period.probabilidad }}%</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="status">
+            <p>Selecciona un municipio para consultar la previsión de mañana.</p>
+          </div>
+        }
+      }
+    </section>
+  </div>
 </main>

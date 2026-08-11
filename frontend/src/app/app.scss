@@ -1,24 +1,178 @@
 :host {
   display: block;
-  max-width: 480px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  min-height: 100%;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+  padding: var(--space-5) var(--space-4);
+}
+
+.page-header {
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .header-accent {
+    display: block;
+    width: 48px;
+    height: 3px;
+    margin: var(--space-2) auto;
+    border-radius: 999px;
+    background: var(--color-primary);
+  }
+
+  .subtitle {
+    margin: 0;
+    color: var(--color-text-secondary);
+  }
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-primary-soft);
+  border-radius: 12px;
+}
+
+.municipality-field {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.result {
+  min-height: 8rem;
 }
 
 .status {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-3);
+  text-align: center;
+  color: var(--color-text-secondary);
 }
 
-.forecast ul {
-  list-style: none;
-  padding: 0;
+.status--error {
+  color: var(--color-error);
+}
+
+.forecast {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.temperature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--color-primary-soft);
+  border-radius: 12px;
+}
+
+.temperature__value {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.temperature__label {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.precipitation__title {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.precipitation__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.precipitation__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2) var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-precipitation-soft);
+  transition: background-color 0.15s ease;
+}
+
+.precipitation__item:hover {
+  background: var(--color-primary-soft);
+}
+
+.precipitation__period {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.precipitation__value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: var(--space-4) var(--space-2);
+  }
+
+  .card {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .precipitation__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .unit-toggle {
+    align-self: center;
+  }
 }

@@ -1,1 +1,45 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --color-background-start: #eef1f8;
+  --color-background-end: #e4ebf5;
+  --color-surface: #ffffff;
+  --color-primary: #4054b2;
+  --color-primary-soft: #eef2ff;
+  --color-precipitation-soft: #eef7ff;
+  --color-text: #1f2937;
+  --color-text-secondary: #64748b;
+  --color-error: #b3261e;
+  --color-border: #e2e8f0;
+
+  --font-family-base: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+
+  /* Align Angular Material's own typography tokens with the app's font stack. */
+  --mat-form-field-container-text-font: var(--font-family-base);
+  --mat-form-field-filled-label-text-font: var(--font-family-base);
+  --mat-form-field-outlined-label-text-font: var(--font-family-base);
+  --mat-form-field-subscript-text-font: var(--font-family-base);
+  --mat-option-label-text-font: var(--font-family-base);
+  --mat-optgroup-label-text-font: var(--font-family-base);
+  --mat-button-toggle-label-text-font: var(--font-family-base);
+  --mat-button-toggle-legacy-label-text-font: var(--font-family-base);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  color: var(--color-text);
+  background: linear-gradient(180deg, var(--color-background-start), var(--color-background-end));
+  background-attachment: fixed;
+}
