@@ -6,24 +6,30 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import com.aemetweather.backend.config.AemetProperties;
 import com.aemetweather.backend.exception.AemetUnavailableException;
 import com.aemetweather.backend.model.Municipality;
+import java.nio.charset.Charset;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
 
 class AemetRestClientTest {
 
 	private static final String BASE_URL = "https://opendata.aemet.es/opendata/api";
 	private static final String API_KEY = "test-api-key";
 	private static final String DATA_URL = "https://opendata.aemet.es/data/municipios/abc123";
+	private static final Charset ISO_8859_15 = Charset.forName("ISO-8859-15");
+	private static final MediaType AEMET_DATA_CONTENT_TYPE = new MediaType("text", "plain", ISO_8859_15);
 
 	private MockRestServiceServer server;
 	private AemetRestClient aemetRestClient;
@@ -33,7 +39,7 @@ class AemetRestClientTest {
 		RestClient.Builder builder = RestClient.builder();
 		server = MockRestServiceServer.bindTo(builder).build();
 		AemetProperties properties = new AemetProperties(BASE_URL, API_KEY);
-		aemetRestClient = new AemetRestClient(builder, properties);
+		aemetRestClient = new AemetRestClient(builder, properties, JsonMapper.builder().build());
 	}
 
 	@Test
@@ -53,6 +59,36 @@ class AemetRestClientTest {
 		assertThat(result).containsExactly(
 			new Municipality("44001", "Ababuj"),
 			new Municipality("28079", "Madrid"));
+		server.verify();
+	}
+
+	@Test
+	void getMunicipalities_whenSecondResponseDeclaresIso88595AndBodyIsIso88595Encoded_preservesAccents() {
+		server.expect(requestTo(BASE_URL + "/maestro/municipios"))
+			.andRespond(withSuccess(envelopeJson(), MediaType.APPLICATION_JSON));
+
+		String json = """
+			[
+			  {
+			    "id": "id10001",
+			    "nombre": "Abadía"
+			  },
+			  {
+			    "id": "id48001",
+			    "nombre": "Abadiño"
+			  }
+			]
+			""";
+		server.expect(requestTo(DATA_URL))
+			.andRespond(withStatus(HttpStatus.OK)
+				.body(json.getBytes(ISO_8859_15))
+				.contentType(AEMET_DATA_CONTENT_TYPE));
+
+		List<Municipality> result = aemetRestClient.getMunicipalities();
+
+		assertThat(result).containsExactly(
+			new Municipality("10001", "Abadía"),
+			new Municipality("48001", "Abadiño"));
 		server.verify();
 	}
 

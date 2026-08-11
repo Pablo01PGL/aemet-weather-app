@@ -6,10 +6,12 @@ import com.aemetweather.backend.integration.aemet.dto.AemetEnvelope;
 import com.aemetweather.backend.integration.aemet.dto.AemetMunicipalityDto;
 import com.aemetweather.backend.model.Municipality;
 import java.util.List;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class AemetRestClient implements AemetClient {
@@ -20,10 +22,12 @@ public class AemetRestClient implements AemetClient {
 
 	private final RestClient restClient;
 	private final AemetProperties properties;
+	private final ObjectMapper objectMapper;
 
-	public AemetRestClient(RestClient.Builder restClientBuilder, AemetProperties properties) {
+	public AemetRestClient(RestClient.Builder restClientBuilder, AemetProperties properties, ObjectMapper objectMapper) {
 		this.restClient = restClientBuilder.baseUrl(properties.baseUrl()).build();
 		this.properties = properties;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -53,19 +57,36 @@ public class AemetRestClient implements AemetClient {
 	}
 
 	private List<AemetMunicipalityDto> fetchMunicipalities(String dataUrl) {
+		String json = fetchRawJson(dataUrl);
+		List<AemetMunicipalityDto> municipalities = readJson(json, new TypeReference<List<AemetMunicipalityDto>>() {
+		});
+		if (municipalities == null) {
+			throw new AemetUnavailableException("AEMET returned an empty municipalities payload");
+		}
+		return municipalities;
+	}
+
+	private String fetchRawJson(String dataUrl) {
+		String body;
 		try {
-			List<AemetMunicipalityDto> municipalities = restClient.get()
-				.uri(dataUrl)
-				.retrieve()
-				.body(new ParameterizedTypeReference<List<AemetMunicipalityDto>>() {
-				});
-			if (municipalities == null) {
-				throw new AemetUnavailableException("AEMET returned an empty municipalities payload");
-			}
-			return municipalities;
+			body = restClient.get().uri(dataUrl).retrieve().body(String.class);
 		}
 		catch (RestClientException e) {
-			throw new AemetUnavailableException("Failed to retrieve municipalities data from AEMET", e);
+			throw new AemetUnavailableException("Failed to retrieve data from AEMET", e);
+		}
+
+		if (body == null) {
+			throw new AemetUnavailableException("AEMET returned an empty response body");
+		}
+		return body;
+	}
+
+	private <T> T readJson(String json, TypeReference<T> typeReference) {
+		try {
+			return objectMapper.readValue(json, typeReference);
+		}
+		catch (JacksonException e) {
+			throw new AemetUnavailableException("Failed to parse AEMET JSON response", e);
 		}
 	}
 
