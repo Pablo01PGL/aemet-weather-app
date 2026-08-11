@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -42,6 +43,7 @@ public class AemetRestClient implements AemetClient {
 	}
 
 	@Override
+	@Cacheable("municipalities")
 	public List<Municipality> getMunicipalities() {
 		String dataUrl = fetchDataUrl(MUNICIPALITIES_PATH);
 		List<AemetMunicipalityDto> municipalities = fetchMunicipalities(dataUrl);
